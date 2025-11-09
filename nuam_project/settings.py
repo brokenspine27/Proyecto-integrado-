@@ -98,17 +98,11 @@ DB_NAME_SERVICE = env('DB_NAME') # XEPDB1 es un Nombre de Servicio
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        
-        # --- ESTA ES LA LÍNEA CORREGIDA ---
-        # Construimos un DSN (Data Source Name) que especifica
-        # que DB_NAME es un SERVICE_NAME, no un SID.
-        'NAME': f"{DB_HOST}:{DB_PORT}/{DB_NAME_SERVICE}",
-        
-        # Dejamos HOST y PORT vacíos porque ya están incluidos en el DSN de 'NAME'
-        'HOST': '', 
-        'PORT': '',
+        'NAME': 'XE', 
+        'USER': 'system',
+        'PASSWORD': '123',
+        'HOST': 'localhost',
+        'PORT': '1521',
     }
 }
 # ---------------------------------------------------
