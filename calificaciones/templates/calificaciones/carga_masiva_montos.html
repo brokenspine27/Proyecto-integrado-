@@ -1,0 +1,43 @@
+{% extends 'calificaciones/base.html' %}
+
+{% block title %}Carga Masiva de Montos (DJ1948){% endblock %}
+
+{% block header_title %}Carga Masiva de Calificaciones (Montos DJ1948){% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow mb-4">
+                <div class="card-body bg-white">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <p class="lead">Este módulo realiza la **conversión automática de Montos a Factores** (RF008).</p>
+                        
+                        {{ form.as_p }}
+                        
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-calculator me-1"></i> Cargar Archivo de Montos</button>
+                        <a href="{% url 'mantenedor' %}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Volver al Mantenedor</a>
+                    </form>
+                    
+                    <hr>
+                    <h5>Formato esperado del archivo CSV:</h5>
+                    <p>El archivo debe ser un CSV separado por punto y coma (;) y contener las columnas de montos, incluyendo:</p>
+                    <small class="text-muted"><code>instrumento;fecha;secuencia;...;monto_8;monto_9;...;monto_37</code></small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

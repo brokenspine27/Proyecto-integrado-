@@ -1,0 +1,45 @@
+{% extends 'calificaciones/base.html' %}
+
+{% block title %}Carga Masiva de Factores{% endblock %}
+
+{% block header_title %}Carga Masiva de Calificaciones (Factores){% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow mb-4">
+                <div class="card-body bg-white">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <p class="lead">Utilice este módulo para subir un archivo CSV que contenga los factores ya calculados.</p>
+                        
+                        <div class="mb-3">
+                            {{ form.corredor.label_tag }}
+                            {{ form.corredor }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.archivo_csv.label_tag }}
+                            {{ form.archivo_csv }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i> Cargar Archivo</button>
+                        <a href="{% url 'mantenedor' %}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Volver al Mantenedor</a>
+                    </form>
+                    
+                    <hr>
+                    <h5>Formato esperado del archivo CSV:</h5>
+                    <p>El archivo debe ser un CSV separado por punto y coma (;) y tener las siguientes columnas:</p>
+                    <small class="text-muted"><code>instrumento;fecha;secuencia;numero_dividendo;tipo_sociedad;valor_historico;factor_8;factor_9;...;factor_37</code></small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
