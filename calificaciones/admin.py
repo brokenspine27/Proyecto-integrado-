@@ -1,30 +1,29 @@
-# calificaciones/admin.py
 from django.contrib import admin
 from .models import CalificacionTributaria, Corredor
 
-# --- CONFIGURACIÓN PARA EL MODELO CORREDOR (ACTUALIZADO) ---
+# --- CONFIGURACIÓN PARA EL MODELO CORREDOR ---
 @admin.register(Corredor)
 class CorredorAdmin(admin.ModelAdmin):
-    # Añadimos 'usuario' para ver quién está vinculado
+    # Se añade 'usuario' para ver quién está vinculado
     list_display = ('nombre', 'codigo_corredor', 'activo', 'usuario')
     search_fields = ('nombre', 'codigo_corredor', 'usuario__username')
     
-    # Hacemos que 'usuario' sea un campo de autocompletar
+    # Hacer que 'usuario' sea un campo de autocompletar
     autocomplete_fields = ['usuario']
     
-    # Organizamos la vista
+    # Organización de la vista
     fieldsets = (
         ('Datos del Corredor', {'fields': ('nombre', 'codigo_corredor', 'activo')}),
         ('Vínculo de Seguridad', {'fields': ('usuario',)}),
     )
 
-# --- CONFIGURACIÓN PARA EL MODELO CALIFICACIÓN TRIBUTARIA (ACTUALIZADO) ---
+# --- CONFIGURACIÓN PARA EL MODELO CALIFICACIÓN TRIBUTARIA ---
 @admin.register(CalificacionTributaria)
 class CalificacionTributariaAdmin(admin.ModelAdmin):
     list_display = (
         'instrumento', 
         'fecha', 
-        'corredor', # Ahora podemos ver a qué corredor pertenece
+        'corredor', # Se muestra a qué corredor está relacionada
         'tipo_mercado', 
         'fuente_ingreso',
         'fecha_modificacion',
@@ -32,7 +31,7 @@ class CalificacionTributariaAdmin(admin.ModelAdmin):
     )
     
     list_filter = (
-        'corredor', # <-- ¡Ahora podemos filtrar por corredor!
+        'corredor', # Posibilidad de filtrar por corredor
         'tipo_mercado', 
         'fuente_ingreso',
         'origen',
@@ -41,10 +40,10 @@ class CalificacionTributariaAdmin(admin.ModelAdmin):
     
     search_fields = ('instrumento', 'secuencia', 'corredor__nombre', 'descripcion_dividendo')
     
-    # Hacemos que el campo 'corredor' sea de solo lectura
+    # campo 'corredor' de solo lectura
     readonly_fields = ('fecha_modificacion',)
 
-    # (El resto del 'fieldsets' se queda igual que antes)
+    
     fieldsets = (
         ('Datos de Identificación', {
             'fields': (
