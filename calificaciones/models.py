@@ -1,15 +1,14 @@
-# calificaciones/models.py
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.contrib.auth.models import User # <-- ¡NUEVA IMPORTACIÓN!
+from django.contrib.auth.models import User
 
-# --- MODELO PARA LOS CORREDORES (ACTUALIZADO) ---
+#Modelo para los CORREDORES
 class Corredor(models.Model):
-    # --- ¡NUEVO CAMPO DE VÍNCULO! ---
+    #Creación campo de vínculo
     usuario = models.OneToOneField(
         User,
-        on_delete=models.SET_NULL, # Si borras el Usuario, el Corredor no se borra
+        on_delete=models.SET_NULL, #Dejar usuario independiente de corredor al borrar usuario
         null=True,
         blank=True,
         verbose_name="Usuario Django Vinculado"
@@ -21,13 +20,13 @@ class Corredor(models.Model):
 
     def __str__(self):
         return self.nombre
-
+#uso de metadatos para que el nombre se muestre como corredor o corredores
     class Meta:
         verbose_name = "Corredor"
         verbose_name_plural = "Corredores"
 
 
-# --- MODELO PRINCIPAL PARA LAS CALIFICACIONES (COMPLETO) ---
+# --- MODELO PRINCIPAL PARA LAS CALIFICACIONES ---
 class CalificacionTributaria(models.Model):
     
     # --- Opciones para los nuevos campos ---
@@ -88,7 +87,7 @@ class CalificacionTributaria(models.Model):
         max_length=3,
         choices=ORIGEN_CHOICES,
         verbose_name="Origen",
-        default='SIS' # Por defecto, 'Sistema'
+        default='SIS' # sigla para sistema
     )
     factor_actualizacion = models.DecimalField(
         max_digits=10,
@@ -99,13 +98,13 @@ class CalificacionTributaria(models.Model):
     
     # --- CAMPOS DE AUDITORÍA ---
     fecha_modificacion = models.DateTimeField(
-        auto_now=True, # Actualiza automáticamente la fecha cada vez que se guarda
+        auto_now=True, #Uso de auto_now para que quede registrada fecha de guardado
         verbose_name="Última Modificación"
     )
     fuente_ingreso = models.CharField(
         max_length=3,
         choices=FUENTE_CHOICES,
-        default='MAN', # Por defecto 'Ingreso Manual'
+        default='MAN', # Por defecto, sigla para: 'Ingreso Manual'
         verbose_name="Fuente de Ingreso"
     )
 
@@ -160,7 +159,7 @@ class CalificacionTributaria(models.Model):
     factor_36 = models.DecimalField(max_digits=9, decimal_places=8, default=0.0, validators=validator_factor)
     factor_37 = models.DecimalField(max_digits=9, decimal_places=8, default=0.0, validators=validator_factor)
 
-    # --- LÓGICA DE VALIDACIÓN ---
+    # --- LÓGICA DE VALIDACIÓN con la suma de los factores que debe ser 1 ---
     def clean(self):
         super().clean()
         suma_factores = (
@@ -175,7 +174,7 @@ class CalificacionTributaria(models.Model):
 
     def __str__(self):
         return f"{self.instrumento} ({self.corredor.nombre}) - {self.fecha}"
-
+#uso de metadatos para mostrar con nombre entendible
     class Meta:
         verbose_name = "Calificación Tributaria"
         verbose_name_plural = "Calificaciones Tributarias"
