@@ -1,4 +1,3 @@
-# calificaciones/urls.py
 from django.urls import path
 from . import views
 
@@ -16,7 +15,7 @@ urlpatterns = [
     path('obtener/<int:calificacion_id>/', views.obtener_calificacion_json, name='obtener_calificacion_json'),
     path('modificar/<int:calificacion_id>/', views.modificar_calificacion, name='modificar_calificacion'),
 
-    # Flujo de Guardado (Paso 3)
+    # Flujo de Guardado
     path('guardar-factores/<int:calificacion_id>/', views.guardar_factores, name='guardar_factores'),
     
     # Flujo de Carga Masiva
