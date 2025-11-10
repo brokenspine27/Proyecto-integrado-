@@ -12,19 +12,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import environ  # <-- Importamos environ
+import environ  # Importar environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- Configuración de Django-Environ ---
 env = environ.Env(
-    # Seteamos el tipo de dato y valor por defecto
+    # Setear dato por defecto
     DEBUG=(bool, False)
 )
 
 # Tomar variables de entorno del archivo .env
-# Esto busca un archivo .env en la carpeta BASE_DIR (donde está manage.py)
+# Creación del lector
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # ----------------------------------------
 
@@ -88,12 +88,12 @@ WSGI_APPLICATION = 'nuam_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# --- Configuración de Base de Datos Oracle desde .env (CORREGIDA) ---
+# --- Configuración de Base de Datos Oracle desde .env ---
 
-# Leemos las variables del .env
+# Leer las variables del .env
 DB_HOST = env('DB_HOST')
 DB_PORT = env('DB_PORT')
-DB_NAME_SERVICE = env('DB_NAME') # XEPDB1 es un Nombre de Servicio
+DB_NAME_SERVICE = env('DB_NAME')
 
 DATABASES = {
     'default': {
@@ -149,7 +149,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- Tus configuraciones de Login (Preservadas) ---
+#Configuraciones de Login
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'mantenedor'
 LOGOUT_REDIRECT_URL = 'login'
