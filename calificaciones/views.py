@@ -1,4 +1,3 @@
-# calificaciones/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseForbidden
@@ -19,11 +18,10 @@ def corredor_requerido(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
-# --- ¡VISTA CORREGIDA! PARA PREVISUALIZAR CSV ---
 @corredor_requerido
 def previsualizar_csv(request):
     if request.method == 'POST':
-        # El form ahora solo tiene el archivo
+        # El formulario tiene el archivo csv
         form = CargaCSVForm(request.POST, request.FILES)
         if form.is_valid():
             try:
@@ -52,21 +50,21 @@ def previsualizar_csv(request):
     return JsonResponse({'success': False, 'errors': 'Método no permitido'})
 
 
-# --- VISTA 1: CARGA MASIVA DE FACTORES (ACTUALIZADA) ---
+# -Vista de: CARGA MASIVA DE FACTORES ---
 @corredor_requerido
 def carga_masiva_factores(request):
     if request.method == 'POST':
         form = CargaCSVForm(request.POST, request.FILES)
         if form.is_valid():
             archivo = request.FILES['archivo_csv']
-            corredor = request.user.corredor # <-- ¡OBTENEMOS EL CORREDOR DEL USUARIO!
+            corredor = request.user.corredor
             try:
                 df = pd.read_csv(archivo, sep=';') 
                 registros_creados = 0
                 registros_actualizados = 0
                 for index, row in df.iterrows():
                     calificacion, created = CalificacionTributaria.objects.update_or_create(
-                        corredor=corredor, # <-- Usamos el corredor del usuario
+                        corredor=corredor, 
                         instrumento=row['instrumento'],
                         fecha=row['fecha'],
                         defaults={
@@ -118,14 +116,14 @@ def carga_masiva_factores(request):
     return JsonResponse({'success': False, 'errors': 'Método no permitido'})
 
 
-# --- VISTA 2: CARGA MASIVA DE MONTOS (ACTUALIZADA) ---
+# --- Vista de: CARGA MASIVA DE MONTOS ---
 @corredor_requerido
 def carga_masiva_montos(request):
     if request.method == 'POST':
         form = CargaCSVForm(request.POST, request.FILES)
         if form.is_valid():
             archivo = request.FILES['archivo_csv']
-            corredor = request.user.corredor # <-- ¡OBTENEMOS EL CORREDOR DEL USUARIO!
+            corredor = request.user.corredor
             try:
                 df = pd.read_csv(archivo, sep=';')
                 registros_creados = 0
@@ -141,7 +139,7 @@ def carga_masiva_montos(request):
                         for i in range(8, 38):
                             factores_calculados[f'factor_{i}'] = Decimal('0.0')
                     calificacion, created = CalificacionTributaria.objects.update_or_create(
-                        corredor=corredor, # <-- Usamos el corredor del usuario
+                        corredor=corredor,
                         instrumento=row['instrumento'],
                         fecha=row['fecha'],
                         defaults={
@@ -164,16 +162,16 @@ def carga_masiva_montos(request):
     return JsonResponse({'success': False, 'errors': 'Método no permitido'})
 
 
-# --- VISTA 3: MANTENEDOR PRINCIPAL (ACTUALIZADA) ---
-@login_required # <-- Ya la teníamos protegida
+# --- Vista de: MANTENEDOR PRINCIPAL ---
+@login_required #para proteger la vista, se pide autenticación
 def mantenedor_calificaciones(request):
-    # ¡FILTRAMOS! Solo mostramos los datos del corredor que inició sesión
+
     try:
         corredor_actual = request.user.corredor
         calificaciones = CalificacionTributaria.objects.filter(corredor=corredor_actual).order_by('-fecha')
     except Corredor.DoesNotExist:
         # Si el usuario no es un corredor (ej. es un superadmin sin vínculo)
-        calificaciones = CalificacionTributaria.objects.none() # No mostramos nada
+        calificaciones = CalificacionTributaria.objects.none() # No se muestra nada
         messages.warning(request, "Tu usuario no está vinculado a ningún corredor. Contacta al administrador.")
 
     filtro_form = FiltroCalificacionesForm(request.GET)
@@ -217,16 +215,16 @@ def mantenedor_calificaciones(request):
     return render(request, 'calificaciones/mantenedor.html', context)
 
 
-# --- VISTA 4: INGRESAR (Paso 1) (ACTUALIZADA) ---
+# --- VISTA de INGRESAR calificación ---
 @corredor_requerido
 def ingresar_calificacion(request):
     if request.method == 'POST':
         form = IngresoBasicoForm(request.POST)
         if form.is_valid():
-            corredor = request.user.corredor # <-- ¡Usamos el corredor del usuario!
+            corredor = request.user.corredor
             nueva_calificacion = form.save(commit=False)
-            nueva_calificacion.corredor = corredor # <-- Asignamos
-            nueva_calificacion.fuente_ingreso = 'MAN'
+            nueva_calificacion.corredor = corredor #Se asigna un corredor
+            nueva_calificacion.fuente_ingreso = 'MAN' #Carga manual
             nueva_calificacion.save()
             return JsonResponse({'success': True, 'calificacion_id': nueva_calificacion.id})
         else:
@@ -234,7 +232,7 @@ def ingresar_calificacion(request):
     return JsonResponse({'success': False, 'errors': 'Método no permitido'})
 
 
-# --- VISTA 5: CALCULAR MONTOS (Paso 2) (Sin cambios de lógica) ---
+# --- VISTA de: CALCULAR MONTOS ---
 @corredor_requerido
 def ingresar_montos(request, calificacion_id):
     calificacion = get_object_or_404(CalificacionTributaria, id=calificacion_id, corredor=request.user.corredor) # Seguridad
@@ -264,12 +262,12 @@ def ingresar_montos(request, calificacion_id):
     return JsonResponse({'success': False, 'errors': 'Método no permitido'})
 
 
-# --- VISTA 6: ELIMINAR (ACTUALIZADA) ---
+# --- VISTA de: ELIMINAR ---
 @corredor_requerido
 def eliminar_calificacion(request, calificacion_id):
     if request.method == 'POST':
         try:
-            # ¡Seguridad! Solo podemos borrar si el registro pertenece a nuestro corredor
+            # Para mayor seguridad solo poder borrar si el registro pertenece a nuestro corredor
             calificacion = get_object_or_404(CalificacionTributaria, id=calificacion_id, corredor=request.user.corredor)
             instrumento_nombre = calificacion.instrumento
             calificacion.delete()
@@ -279,12 +277,12 @@ def eliminar_calificacion(request, calificacion_id):
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 
-# --- VISTA 7: OBTENER DATOS (Para Modificar) (ACTUALIZADA) ---
+# --- VISTA de: OBTENER DATOS (Para Modificar) ---
 @corredor_requerido
 def obtener_calificacion_json(request, calificacion_id):
     if request.method == 'GET':
         try:
-            # ¡Seguridad! Solo podemos obtener si el registro pertenece a nuestro corredor
+            # Aquí por seguridad, también se permite mostrar solo si los datos pertencen al corredor del usuario
             calificacion = get_object_or_404(CalificacionTributaria, id=calificacion_id, corredor=request.user.corredor)
             data = model_to_dict(calificacion)
             data['fecha'] = calificacion.fecha.strftime('%Y-%m-%d')
@@ -294,10 +292,10 @@ def obtener_calificacion_json(request, calificacion_id):
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 
-# --- VISTA 8: MODIFICAR (Paso 1) (ACTUALIZADA) ---
+# --- VISTA de: MODIFICAR ---
 @corredor_requerido
 def modificar_calificacion(request, calificacion_id):
-    # ¡Seguridad!
+    # Parte de seguridad
     calificacion = get_object_or_404(CalificacionTributaria, id=calificacion_id, corredor=request.user.corredor)
     if request.method == 'POST':
         form = IngresoBasicoForm(request.POST, instance=calificacion)
@@ -309,10 +307,10 @@ def modificar_calificacion(request, calificacion_id):
     return JsonResponse({'success': False, 'errors': 'Método no permitido'})
 
 
-# --- VISTA 9: GUARDAR FACTORES (Paso 3) (ACTUALIZADA) ---
+# --- VISTA de: GUARDAR FACTORES ---
 @corredor_requerido
 def guardar_factores(request, calificacion_id):
-    # ¡Seguridad!
+    # Parte de seguridad
     calificacion = get_object_or_404(CalificacionTributaria, id=calificacion_id, corredor=request.user.corredor)
     if request.method == 'POST':
         form = IngresoFactoresForm(request.POST)
