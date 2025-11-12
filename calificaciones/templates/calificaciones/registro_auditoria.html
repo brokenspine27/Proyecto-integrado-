@@ -1,0 +1,60 @@
+{% extends 'calificaciones/base.html' %}
+{% load static %}
+
+{% block title %}Registro de Auditoría{% endblock %}
+
+{% block header_title %}Registro Histórico de Auditoría (Trazabilidad){% endblock %}
+
+{% block header_actions %}
+    <a href="{% url 'mantenedor' %}" class="btn btn-secondary btn-sm shadow-sm">
+        <i class="fas fa-arrow-left me-1"></i> Volver al Mantenedor
+    </a>
+{% endblock %}
+
+{% block content %}
+    <div class="card shadow mb-4">
+        <div class="card-header bg-dark text-white py-3">
+            <h6 class="m-0 font-weight-bold"><i class="fas fa-history me-1"></i> Acciones Registradas (Ley 19.628)</h6>
+        </div>
+        <div class="card-body p-0 bg-white">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered mb-0 small">
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Usuario</th>
+                            <th>Tipo de Acción</th>
+                            <th>Elemento Afectado</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.action_time|date:"d-m-Y H:i:s" }}</td>
+                            <td>{{ log.user.username }}</td>
+                            <td>
+                                {% if log.action_flag == 1 %}
+                                    <span class="badge bg-success">Añadido</span>
+                                {% elif log.action_flag == 2 %}
+                                    <span class="badge bg-warning text-dark">Modificado</span>
+                                {% elif log.action_flag == 3 %}
+                                    <span class="badge bg-danger">Eliminado</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Otro</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.content_type.model|title }} #{{ log.object_repr }}</td>
+                            <td>{{ log.change_message|default:"Sin detalle." }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No se encontraron registros de auditoría.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
