@@ -70,8 +70,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'XE', # Usar el service name del contenedor Docker
         'USER': 'system',
-        'PASSWORD': '123',
-        'HOST': '127.0.0.1', # Apuntando a su máquina local, donde Docker mapea el puerto
+        'PASSWORD': 'Inacap2025',
+        'HOST': 'localhost', 
         'PORT': '1521',
     }
 }
