@@ -4,15 +4,20 @@ Django settings for nuam_project project.
 
 from pathlib import Path
 import os
+import environ
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+#lector del environ
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-p5l!5+kjb#gbd^knk$ez4)er46iexuf=l4l1=4*_bd)h&h&r!9' # Clave genérica para desarrollo
+SECRET_KEY = env('SECRET_KEY') # Clave genérica para desarrollo
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -69,9 +74,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'XE', # Usar el service name del contenedor Docker
-        'USER': 'system',
-        'PASSWORD': 'Inacap2025',
-        'HOST': 'localhost', 
+        'USER': env('USER'),
+        'PASSWORD': env('PASSWORD'),
+        'HOST': env('HOST'), 
         'PORT': '1521',
     }
 }
