@@ -79,7 +79,6 @@ DATABASES = {
         'HOST': env('HOST'), 
         'PORT': '1521',
         'OPTIONS': {
-            'threaded': True,
             'service_name': 'XE',
         },
     }
